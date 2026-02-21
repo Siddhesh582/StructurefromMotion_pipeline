@@ -18,7 +18,7 @@ The challenge is that every stage compounds error: bad matches corrupt F, bad F 
 
 **3D Reconstruction (after Bundle Adjustment)**
 
-![3D Reconstruction After BA](results/Screenshot from 2026-02-20 22-23-48.png)
+![3D Reconstruction After BA](results/reconstruction_after_ba_screenshot.png)
 
 **Camera Trajectory** — estimated path (X-Y top-down) vs COLMAP ground truth.
 
