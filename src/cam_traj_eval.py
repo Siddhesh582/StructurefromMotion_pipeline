@@ -2,12 +2,10 @@ import struct
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.cam_trajectory import compute_camera_poses  # noqa: E402
+from src.cam_trajectory import compute_camera_poses  
 
 
-# ─────────────────────────────────────────────
 #  Quaternion → Rotation Matrix
-# ─────────────────────────────────────────────
 
 def quat_to_rotation_matrix(qw, qx, qy, qz):
     """Convert a unit quaternion (COLMAP convention) to a 3×3 rotation matrix."""
@@ -19,9 +17,7 @@ def quat_to_rotation_matrix(qw, qx, qy, qz):
     return R
 
 
-# ─────────────────────────────────────────────
 #  Read COLMAP images.bin
-# ─────────────────────────────────────────────
 
 def read_colmap_images(images_bin_path):
     """
@@ -69,9 +65,7 @@ def read_colmap_images(images_bin_path):
     return positions, rotations
 
 
-# ─────────────────────────────────────────────
 #  Trajectory Comparison Plot
-# ─────────────────────────────────────────────
 
 def compare_trajectories(camera_poses, cameras_bin_path, images_bin_path):
     """
@@ -85,13 +79,13 @@ def compare_trajectories(camera_poses, cameras_bin_path, images_bin_path):
 
     fig, ax = plt.subplots(figsize=(14, 12))
 
-    # ── COLMAP ──
+    #  COLMAP 
     ax.plot(colmap_positions[:, 0], colmap_positions[:, 1],
             'g-', linewidth=2.5, alpha=0.7, label='COLMAP (Ground Truth)')
     ax.scatter(colmap_positions[:, 0], colmap_positions[:, 1],
                c='green', s=120, zorder=5, edgecolors='black', linewidths=2, alpha=0.7)
 
-    # ── Estimated ──
+    #  Estimated 
     ax.plot(est_positions[:, 0], est_positions[:, 1],
             'b--', linewidth=2.5, alpha=0.7, label='Estimated')
     ax.scatter(est_positions[:, 0], est_positions[:, 1],
@@ -110,7 +104,7 @@ def compare_trajectories(camera_poses, cameras_bin_path, images_bin_path):
     plt.tight_layout()
     plt.show()
 
-    # ── COLMAP position table ──
+    #  COLMAP position table 
     print("\nCOLMAP Camera Positions:")
     print(f"{'Cam':<6} {'X':>8} {'Y':>8} {'Z':>8}")
     print("─" * 36)
@@ -120,9 +114,7 @@ def compare_trajectories(camera_poses, cameras_bin_path, images_bin_path):
     return colmap_positions, est_positions
 
 
-# ─────────────────────────────────────────────
 #  Baseline Analysis
-# ─────────────────────────────────────────────
 
 def _baseline_stats(positions, label):
     """Compute and print sequential baselines for a trajectory."""
@@ -130,7 +122,6 @@ def _baseline_stats(positions, label):
 
     print(f"\n{'='*60}")
     print(f"BASELINES — {label}")
-    print(f"{'='*60}")
     print(f"{'Pair':<10} {'Baseline':>12}  units")
     print("─" * 60)
     for k, b in enumerate(baselines):
@@ -142,7 +133,6 @@ def _baseline_stats(positions, label):
           f"(pair {baselines.argmin()+1}→{baselines.argmin()+2})")
     print(f"Max  baseline: {baselines.max():.4f}  "
           f"(pair {baselines.argmax()+1}→{baselines.argmax()+2})")
-    print(f"{'='*60}")
     return baselines
 
 

@@ -24,7 +24,7 @@ from src.bundle_adjustment import (compute_reprojection_errors,
                                     create_observation_map,
                                     bundle_adjustment_gtsam)
 
-# ── 1. Load images ───────────────────────────
+# Load images
 ROOT        = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 image_dir   = os.path.join(ROOT, 'data', 'images', 'buddha_images')
 colmap_path = os.path.join(ROOT, 'data', 'colmap', 'cameras.bin')
@@ -33,20 +33,20 @@ images_bin  = os.path.join(ROOT, 'data', 'colmap', 'images.bin')
 image_paths = load_image_paths(image_dir, ext='png')
 images      = read_images(image_paths, show=False)
 
-# ── 2. Camera intrinsics ─────────────────────
+# Camera intrinsics 
 K = get_K_from_colmap(colmap_path)
 
-# ── 3. Feature detection ─────────────────────
+# Feature detection 
 sift_data = image_features(images, image_paths, normalize=True)
 
-# ── 4. Feature matching ──────────────────────
+# Feature matching ─
 all_matches = build_matches(sift_data,
                              ratio_threshold=0.75,
                              min_matches=8,
                              window=1,
                              visualize=False)
 
-# ── 5. Robust F estimation ───────────────────
+# Robust F estimation
 for match in all_matches:
     i, j = match['image_pair']
     print(f"\nF matrix — Image {i+1} ↔ Image {j+1}")
@@ -62,7 +62,7 @@ for match in all_matches:
     match['kp_idx1_in']  = match['kp_idx1_raw'][inliers]
     match['kp_idx2_in']  = match['kp_idx2_raw'][inliers]
 
-# ── 6. Essential matrix + pose candidates ────
+# Essential matrix + pose candidates
 for match in all_matches:
     i, j = match['image_pair']
     E, poses = essential_matrix(match['F'], K)
@@ -74,10 +74,10 @@ for match in all_matches:
     match['kp_idx1']     = match['kp_idx1_in']
     match['kp_idx2']     = match['kp_idx2_in']
 
-# ── 7. Pose selection + triangulation ────────
+# Pose selection + triangulation 
 camera_poses = process_all_pairs(all_matches, reproj_threshold=2.0)
 
-# ── 8. World-frame trajectory ────────────────
+# World-frame trajectory 
 _result        = compute_camera_poses(camera_poses, reverse=True)
 positions      = _result[0]
 rotations      = _result[1]
@@ -87,32 +87,37 @@ cameras_rev    = _result[3]
 plot_camera_trajectory(positions, rotations, cameras_rev,
                        title='Camera Trajectory')
 
-# ── 9. Trajectory comparison vs COLMAP ───────
+# Trajectory comparison vs COLMAP 
 colmap_pos, estimated_pos = compare_trajectories(
     camera_poses, colmap_path, images_bin
 )
 compute_baselines(estimated_pos, colmap_pos)
 
-# ── 10. Incremental SfM (mirrors senior's approach) ──
+# Incremental SfM 
 pc = incremental_sfm(
     images,
     K,
     n_features_first=1000,
     n_features_rest=5000,
-    ratio=0.75,
+    ratio=0.80,
     filter_percentile=90
 )
+
+print("\nCamera positions:")
+for k, T in enumerate(pc.camera_poses):
+    pos = -T[:3,:3].T @ T[:3,3]
+    print(f"  Cam {k}: [{pos[0]:.4f}, {pos[1]:.4f}, {pos[2]:.4f}]")
 
 points_3d_sfm  = pc.get_points_array()
 cam_transforms = pc.camera_poses   # list of 4x4 world-to-cam
 
-# ── 11. Trajectory plot (2-D) ─────────────────
+# Trajectory plot (2-D) 
 plot_camera_trajectory_labeled(
     [{'R': T[:3, :3], 't': T[:3, 3].reshape(3, 1)} for T in cam_transforms],
     start_cam_num=1
 )
 
-# ── 12. 3-D reconstruction ────────────────────
+# 3-D reconstruction
 visualize_reconstruction_plotly(
     [{'R': T[:3, :3], 't': T[:3, 3].reshape(3, 1)} for T in cam_transforms],
     points_3d_sfm, start_cam_num=1,
@@ -121,7 +126,7 @@ visualize_reconstruction_plotly(
     save_path='results/reconstruction_before_ba.html'
 )
 
-# ── 13. Bundle adjustment ─────────────────────
+# Bundle adjustment 
 cam_tf_dict  = {i: {'R': T[:3, :3], 't': T[:3, 3].reshape(3, 1)}
                 for i, T in enumerate(cam_transforms)}
 observations = pc.get_observations()
@@ -131,7 +136,7 @@ print(f"\nBA input: {len(observations)} observations, "
 
 # Filter outlier observations before BA
 clean_obs = filter_observations(
-    observations, points_3d_sfm, cam_tf_dict, K, max_reproj_error=5.0
+    observations, points_3d_sfm, cam_tf_dict, K, max_reproj_error=8.0
 )
 print(f"After outlier filter (<5px): {len(clean_obs)}/{len(observations)}")
 
@@ -178,7 +183,7 @@ print(f"\nPoint shifts (optimized pts) — "
       f"median:{np.median(valid_shifts):.4f}  "
       f"max:{valid_shifts.max():.4f}")
 
-# ── 14. Visualize before / after BA ──────────
+# Visualize before / after BA 
 print("\n[1/2] Before Bundle Adjustment:")
 visualize_reconstruction_plotly(
     [{'R': T[:3, :3], 't': T[:3, 3].reshape(3, 1)} for T in cam_transforms],

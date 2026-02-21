@@ -50,7 +50,7 @@ def compute_camera_poses(camera_poses, reverse=False):
         else:
             R_rel = R_fwd
             t_rel = t_fwd
-            label = f"{i+1}→{j+1}"
+            label = f"{i+1}-->{j+1}"
 
         t_w2c = R_rel @ t_w2c + t_rel
         R_w2c = R_rel @ R_w2c
@@ -73,7 +73,7 @@ def compute_camera_poses(camera_poses, reverse=False):
         rotations_world = list(reversed(rotations_world))
         transforms      = list(reversed(transforms))
         cameras_used    = list(reversed(cameras_used))
-        print("\n  Reversed to normal order (Camera 1 → N)")
+        print("\n  Reversed to normal order (Camera 1 --> N)")
 
     print(f"\n  Cameras in trajectory : {len(cameras_used)}")
     print(f"  Indices               : {cameras_used}")
@@ -123,5 +123,5 @@ def plot_camera_trajectory(positions, rotations_world, cameras_used=None,
     import os
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, dpi=150, bbox_inches='tight')
-    print(f"  Saved trajectory plot → {save_path}")
+    print(f"  Saved trajectory plot --> {save_path}")
     plt.close()

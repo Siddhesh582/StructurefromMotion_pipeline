@@ -148,7 +148,7 @@ def ransac_fundamental_matrix(pts1, pts2,
 
         it += 1
 
-    # ── Refinement on inliers ──
+    # Refinement on inliers
     in_pts1 = pts1[best_inliers]
     in_pts2 = pts2[best_inliers]
     if len(in_pts1) >= 8:

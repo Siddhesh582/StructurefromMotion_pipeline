@@ -115,8 +115,8 @@ def incremental_sfm(images, K,
                     filter_percentile=90):
     """
     Forward incremental SfM:
-      - Frame 0→1 : recover pose from E, triangulate seed points
-      - Frame i→i+1 : PnP from existing cloud, triangulate new points
+      - Frame 0--> 1 : recover pose from E, triangulate seed points
+      - Frame i--> i+1 : PnP from existing cloud, triangulate new points
     """
     pc = PointCloud()
     pc.camera_poses.append(np.eye(4))   # camera 0 at world origin
@@ -126,7 +126,7 @@ def incremental_sfm(images, K,
         j  = i + 1
         nf = n_features_first if i == 0 else n_features_rest
         print(f"\n{'='*50}")
-        print(f"Frame {i} → {j}")
+        print(f"Frame {i} -->  {j}")
 
         src_pts, dst_pts = match_image_pair(images[i], images[j],
                                              n_features=nf, ratio=ratio)

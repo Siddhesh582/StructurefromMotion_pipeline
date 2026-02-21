@@ -110,7 +110,7 @@ def visualize_sift_matches(sift_data1, sift_data2, good_matches):
 
     plt.figure(figsize=(20, 10))
     plt.imshow(cv2.cvtColor(img_matches, cv2.COLOR_BGR2RGB))
-    plt.title(f'SIFT Matches: {name1} ↔ {name2}  ({len(good_matches)} matches)',
+    plt.title(f'SIFT Matches: {name1} <--> {name2}  ({len(good_matches)} matches)',
               fontsize=16, fontweight='bold')
     plt.axis('off')
     plt.tight_layout()

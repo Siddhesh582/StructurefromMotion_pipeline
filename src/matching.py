@@ -11,7 +11,7 @@ def build_matches(sift_data,
 
     for i in range(n):
         for j in range(i + 1, min(i + 1 + window, n)):
-            print(f"\nMatching Image {i+1} ↔ Image {j+1}")
+            print(f"\nMatching Image {i+1} - Image {j+1}")
             pts1, pts2, kp_idx1, kp_idx2, good_matches = sift_features(
                 sift_data[i], sift_data[j],
                 ratio_threshold=ratio_threshold
@@ -39,6 +39,6 @@ def build_matches(sift_data,
     print("\n── MATCHING SUMMARY ──")
     for m in all_matches:
         i, j = m['image_pair']
-        print(f"  Image {i+1} ↔ Image {j+1} : {len(m['pts1'])} matches")
+        print(f"  Image {i+1} - Image {j+1} : {len(m['pts1'])} matches")
 
     return all_matches

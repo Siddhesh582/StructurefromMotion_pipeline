@@ -1,9 +1,7 @@
 import numpy as np
 
 
-# ─────────────────────────────────────────────
 #  Essential Matrix & Pose Candidates
-# ─────────────────────────────────────────────
 
 def essential_matrix(F, K):
     """
@@ -43,9 +41,7 @@ def essential_matrix(F, K):
     return E, poses
 
 
-# ─────────────────────────────────────────────
 #  Triangulation
-# ─────────────────────────────────────────────
 
 def triangulate_points(pts1, pts2, K, R, t):
     """
@@ -120,10 +116,7 @@ def reprojection_error(X, pts, P):
     errs  = np.linalg.norm(proj - pts, axis=1)
     return errs
 
-
-# ─────────────────────────────────────────────
 #  Pose Selection (cheirality + reprojection)
-# ─────────────────────────────────────────────
 
 SOLUTION_LABELS = [
     "R1 = U·W·Vt,   +t",
@@ -225,7 +218,7 @@ def process_all_pairs(camera_poses, reproj_threshold=2.0):
         # Store inlier mask aligned to all_matches kp_idx arrays
         pose_data['inlier_mask']           = best_mask
 
-    # ── Summary table ──
+    #  Summary table 
     print(f"\n{'Pair':<6} {'Images':<12} {'Solution':<20} {'Valid':<14} "
           f"{'Reproj(mean)':<14} {'Translation'}")
     print("─" * 90)

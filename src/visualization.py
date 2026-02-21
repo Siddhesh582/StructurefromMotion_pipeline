@@ -6,9 +6,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 
-# ─────────────────────────────────────────────
-#  Shared helper
-# ─────────────────────────────────────────────
+##
 
 def extract_camera_data(camera_transforms, start_cam_num=1):
     positions, rotations_world = [], []
@@ -22,9 +20,7 @@ def extract_camera_data(camera_transforms, start_cam_num=1):
     return np.array(positions), rotations_world
 
 
-# ─────────────────────────────────────────────
 #  2-D trajectory (matplotlib)
-# ─────────────────────────────────────────────
 
 def plot_camera_trajectory_labeled(camera_transforms, start_cam_num=3,
                                     save_path='results/pnp_trajectory.png'):
@@ -71,9 +67,7 @@ def plot_camera_trajectory_labeled(camera_transforms, start_cam_num=3,
     plt.close()
 
 
-# ─────────────────────────────────────────────
 #  3-D reconstruction (Plotly)
-# ─────────────────────────────────────────────
 
 def visualize_reconstruction_plotly(camera_transforms, points_3d,
                                      start_cam_num=2,
@@ -97,6 +91,11 @@ def visualize_reconstruction_plotly(camera_transforms, points_3d,
         tf_list = camera_transforms
 
     positions, _ = extract_camera_data(tf_list, start_cam_num)
+
+    # Skip cam 1 — it has unit-norm translation from E recovery
+    # which places it far from the rest of the trajectory
+    positions_plot = np.vstack([positions[0], positions[2:]])
+
     end_cam_num  = start_cam_num + len(positions) - 1
 
     fig_title = title or f'3D Reconstruction  (Cams {start_cam_num}–{end_cam_num})'
@@ -115,26 +114,26 @@ def visualize_reconstruction_plotly(camera_transforms, points_3d,
             hovertemplate='X: %{x:.3f}<br>Y: %{y:.3f}<br>Z: %{z:.3f}<extra></extra>'
         ))
 
-    # Camera positions
+    # Camera positions (unique only)
     traces.append(go.Scatter3d(
-        x=positions[:, 0], y=positions[:, 1], z=positions[:, 2],
+        x=positions_plot[:, 0], y=positions_plot[:, 1], z=positions_plot[:, 2],
         mode='markers',
         marker=dict(size=3, color='blue', opacity=0.8),
         name='Cameras',
         hovertemplate='Cam %{text}<extra></extra>',
-        text=[str(start_cam_num + k) for k in range(len(positions))]
+        text=[str(start_cam_num + k) for k in range(len(positions_plot))]
     ))
 
     # Start / end
     traces.append(go.Scatter3d(
-        x=[positions[0,  0]], y=[positions[0,  1]], z=[positions[0,  2]],
+        x=[positions_plot[0,  0]], y=[positions_plot[0,  1]], z=[positions_plot[0,  2]],
         mode='markers',
         marker=dict(size=6, color='green', symbol='diamond',
                     line=dict(color='black', width=2)),
         name=f'Start (Cam {start_cam_num})'
     ))
     traces.append(go.Scatter3d(
-        x=[positions[-1, 0]], y=[positions[-1, 1]], z=[positions[-1, 2]],
+        x=[positions_plot[-1, 0]], y=[positions_plot[-1, 1]], z=[positions_plot[-1, 2]],
         mode='markers',
         marker=dict(size=6, color='orange', symbol='diamond',
                     line=dict(color='black', width=2)),
@@ -164,9 +163,7 @@ def visualize_reconstruction_plotly(camera_transforms, points_3d,
                              n_points=len(points_3d))
 
 
-# ─────────────────────────────────────────────
-#  Private helper
-# ─────────────────────────────────────────────
+##
 
 def _print_trajectory_stats(positions, start_cam, end_cam, n_points=None):
     baselines = np.linalg.norm(np.diff(positions, axis=0), axis=1)

@@ -6,9 +6,7 @@ X = symbol_shorthand.X   # camera poses
 L = symbol_shorthand.L   # 3D landmarks
 
 
-# ─────────────────────────────────────────────
 #  Internal helper
-# ─────────────────────────────────────────────
 
 def _to_dict(camera_transforms):
     """Normalise a list or dict of transforms to a dict keyed by cam_idx."""
@@ -17,9 +15,7 @@ def _to_dict(camera_transforms):
     return camera_transforms
 
 
-# ─────────────────────────────────────────────
 #  Reprojection error
-# ─────────────────────────────────────────────
 
 def compute_reprojection_errors(observations, points_3d, camera_transforms, K):
     """
@@ -99,9 +95,7 @@ def print_reprojection_stats(errors, label=''):
     print(f"  Max    : {np.max(errors):.4f} px")
 
 
-# ─────────────────────────────────────────────
 #  Observation map (for PnP-based pipeline)
-# ─────────────────────────────────────────────
 
 def create_observation_map(point_tracks, camera_transforms, points_3d):
     """
@@ -152,9 +146,7 @@ def create_observation_map(point_tracks, camera_transforms, points_3d):
     return observations, cameras_with_obs
 
 
-# ─────────────────────────────────────────────
 #  Bundle adjustment
-# ─────────────────────────────────────────────
 
 def bundle_adjustment_gtsam(observations, points_3d_initial,
                              camera_transforms, K,
@@ -182,7 +174,6 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
     """
     print("\n" + "="*80)
     print("BUNDLE ADJUSTMENT — GTSAM")
-    print("="*80)
 
     tf_dict = _to_dict(camera_transforms)
     graph   = gtsam.NonlinearFactorGraph()
@@ -197,7 +188,7 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
         np.array([0.01, 0.01, 0.01, 0.001, 0.001, 0.001])
     )
 
-    # ── Camera poses ──
+    # Camera poses
     cams_sorted   = sorted(cameras_with_obs)
     inserted_cams = set()
     print(f"\nAdding {len(cams_sorted)} camera poses...")
@@ -220,7 +211,7 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
             graph.add(gtsam.PriorFactorPose3(X(cam_idx), pose, prior_noise))
             print(f"  Anchored camera {cam_idx}")
 
-    # ── 3D points ──
+    # 3D points
     pts_with_obs = sorted({pt_idx for _, pt_idx, _ in observations
                            if pt_idx < len(points_3d_initial)})
     pts_set      = set(pts_with_obs)
@@ -229,7 +220,7 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
     for pt_idx in pts_with_obs:
         initial.insert(L(pt_idx), gtsam.Point3(points_3d_initial[pt_idx]))
 
-    # ── Projection factors ──
+    # Projection factors
     n_factors = 0
     for cam_idx, pt_idx, meas in observations:
         if cam_idx not in inserted_cams or pt_idx not in pts_set:
@@ -242,7 +233,7 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
         n_factors += 1
     print(f"Added {n_factors} projection factors")
 
-    # ── Optimize ──
+    # Optimize
     params = gtsam.LevenbergMarquardtParams()
     params.setVerbosityLM("SUMMARY" if verbose else "SILENT")
     params.setMaxIterations(num_iterations)
@@ -263,23 +254,20 @@ def bundle_adjustment_gtsam(observations, points_3d_initial,
         print("  WARNING: initial error is zero — graph has no factors")
     print(f"Iterations used     : {optimizer.iterations()}")
 
-    # ── Diagnostics ──
+    # Diagnostics
     _print_pose_diagnostics(tf_dict, cams_sorted, result)
     _print_point_diagnostics(points_3d_initial, pts_with_obs, result)
 
-    # ── Extract results ──
+    # Extract results
     optimized_poses  = _extract_poses(tf_dict, cameras_with_obs, result)
     optimized_points = _extract_points(points_3d_initial, pts_with_obs,
                                         pts_set, result)
 
     print(f"\nOptimized {len(cams_sorted)} cameras and {len(pts_with_obs)} points")
-    print("="*80)
     return optimized_points, optimized_poses, result
 
 
-# ─────────────────────────────────────────────
-#  Private helpers
-# ─────────────────────────────────────────────
+##
 
 def _print_pose_diagnostics(tf_dict, cams_sorted, result):
     max_rot, max_trans = 0.0, 0.0
