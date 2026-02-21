@@ -14,10 +14,12 @@ The result is a complete monocular SfM pipeline that recovers 24 camera poses an
 
 ## Results Visualization
 
-**3D Reconstruction (after Bundle Adjustment)**
+**3D Reconstruction (after Bundle Adjustment) < 0.39 px error**
 
-![3D Reconstruction After BA](results/reconstruction_after_ba_screenshot.png)
-![Target to map](data/buddha_005.png)
+<p float="left">
+  <img src="results/reconstruction_after_ba_screenshot.png" width="48%" />
+  <img src="data/images/buddha_images/buddha_005.png" width="48%" />
+</p>
 
 **Camera Trajectory** — estimated path (X-Y top-down) vs COLMAP ground truth.
 
