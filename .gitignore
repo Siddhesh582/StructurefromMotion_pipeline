@@ -1,0 +1,12 @@
+__pycache__
+cat > .gitignore << 'EOF'
+__pycache__/
+
+*.pyc
+*.pyo
+.DS_Store
+data/images/
+data/colmap/
+sfm/results/
+*.pkl
+.vscode/
