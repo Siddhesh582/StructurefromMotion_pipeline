@@ -6,11 +6,9 @@ Incremental SfM pipeline recovering 3D structure and camera poses from a monocul
 
 ## Problem
 
-Recovering 3D structure from a sequence of 2D images has direct real-world utility: archaeologists use it to create digital preservation records of artifacts and heritage sites before they deteriorate; structural engineers use it to monitor infrastructure like bridges and facades for deformation over time; field robotics teams use it to build maps from drone imagery for terrain analysis and mission planning. In all of these cases, the only sensor available is a camera — no depth sensor, no IMU, no GPS.
-
-The goal here: given a monocular image sequence of an object, recover its 3D geometry and the camera trajectory that produced it, using only 2D pixel correspondences across frames.
-
-The challenge is that every stage compounds error: bad matches corrupt F, bad F corrupts E, bad E corrupts poses, bad poses corrupt triangulation, and BA can't fix what's fundamentally broken upstream. Each module needs to be robust enough that the next one has something to work with.
+Autonomous robots and drones increasingly need to map and understand environments using only onboard cameras — whether for inspection of infrastructure, search and rescue, or last-mile delivery in GPS-denied spaces. A camera is cheap, lightweight, and always available. The challenge is turning a sequence of 2D images into a usable 3D map without any other sensor.
+Each module was built and tested independently with reprojection errors and inlier ratios checked at every step before integrating end to end.
+The result is a complete monocular SfM pipeline that recovers 24 camera poses and a dense point cloud from a 24-image sequence, with a mean reprojection error of 0.39px after bundle adjustment.
 
 ---
 
